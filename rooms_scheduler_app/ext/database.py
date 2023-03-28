@@ -45,9 +45,9 @@ class UserRoomPermission(db.Model, SerializerMixin):
     id = db.Column(db.Integer(), primary_key=True)
     user_id = db.Column(db.Integer(), db.ForeignKey('user.id'), nullable=False)
     user = db.relationship('User', lazy=True)
-    info_lab = db.Column(db.Boolean())
-    sciente_lab = db.Column(db.Boolean())
-    classroom = db.Column(db.Boolean())
+    room_type_id = db.Column(db.Integer, db.ForeignKey('room_type.id'),
+        nullable=False)
+    room_type = db.relationship('RoomType', lazy=True)
 
 
 #  Room models
@@ -57,9 +57,9 @@ class Room(db.Model, SerializerMixin):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(), nullable=False)
     number = db.Column(db.Integer(), nullable=False)
-    type_id = db.Column(db.Integer, db.ForeignKey('room_type.id'),
+    room_type_id = db.Column(db.Integer, db.ForeignKey('room_type.id'),
         nullable=False)
-    type = db.relationship('RoomType', lazy=True)
+    room_type = db.relationship('RoomType', lazy=True)
     key_status = db.Column(db.String()) # Losed, On_Hand, Scheduled
     room_status = db.Column(db.String()) # Inactive, Active
 

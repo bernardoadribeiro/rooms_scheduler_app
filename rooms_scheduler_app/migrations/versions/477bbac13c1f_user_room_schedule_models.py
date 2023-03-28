@@ -1,8 +1,8 @@
 """user_room_schedule_models
 
-Revision ID: a1f5183515ba
+Revision ID: 477bbac13c1f
 Revises: 
-Create Date: 2023-03-28 10:39:12.279971
+Create Date: 2023-03-28 19:50:55.289731
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = 'a1f5183515ba'
+revision = '477bbac13c1f'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -37,18 +37,17 @@ def upgrade():
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('name', sa.String(), nullable=False),
     sa.Column('number', sa.Integer(), nullable=False),
-    sa.Column('type_id', sa.Integer(), nullable=False),
+    sa.Column('room_type_id', sa.Integer(), nullable=False),
     sa.Column('key_status', sa.String(), nullable=True),
     sa.Column('room_status', sa.String(), nullable=True),
-    sa.ForeignKeyConstraint(['type_id'], ['room_type.id'], ),
+    sa.ForeignKeyConstraint(['room_type_id'], ['room_type.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_table('user_room_permission',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('user_id', sa.Integer(), nullable=False),
-    sa.Column('info_lab', sa.Boolean(), nullable=True),
-    sa.Column('sciente_lab', sa.Boolean(), nullable=True),
-    sa.Column('classroom', sa.Boolean(), nullable=True),
+    sa.Column('room_type_id', sa.Integer(), nullable=False),
+    sa.ForeignKeyConstraint(['room_type_id'], ['room_type.id'], ),
     sa.ForeignKeyConstraint(['user_id'], ['user.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
