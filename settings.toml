@@ -5,14 +5,16 @@ FLASK_ADMIN_TEMPLATE_MODE = "bootstrap3"
 FLASK_ADMIN_SWATCH = 'cerulean'
 TITLE = "Rooms Scheduler App"
 PASSWORD_SCHEMES = ['pbkdf2_sha512', 'md5_crypt']
+SECRET_KEY = 'YourSecretKey'
+SQLALCHEMY_DATABASE_URI = 'postgresql://user:pass@database:5432/db_name'
 EXTENSIONS = [
-    "projetoFlask.ext.appearance:init_app",
-    "projetoFlask.ext.database:init_app",
-    "projetoFlask.ext.auth:init_app",
-    "projetoFlask.ext.admin:init_app",
-    "projetoFlask.ext.commands:init_app",
-    "projetoFlask.blueprints.webui:init_app",
-    "projetoFlask.blueprints.restapi:init_app",
+    "rooms_scheduler_app.ext.appearance:init_app",
+    "rooms_scheduler_app.ext.database:init_app",
+    "rooms_scheduler_app.ext.auth:init_app",
+    "rooms_scheduler_app.ext.admin:init_app",
+    "rooms_scheduler_app.ext.commands:init_app",
+    "rooms_scheduler_app.blueprints.webui:init_app",
+    "rooms_scheduler_app.blueprints.restapi:init_app",
 ]
 
 
