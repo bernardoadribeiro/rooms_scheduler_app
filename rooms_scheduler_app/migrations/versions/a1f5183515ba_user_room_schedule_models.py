@@ -1,8 +1,8 @@
 """user_room_schedule_models
 
-Revision ID: 531e6a37174a
+Revision ID: a1f5183515ba
 Revises: 
-Create Date: 2023-03-28 00:25:22.137596
+Create Date: 2023-03-28 10:39:12.279971
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '531e6a37174a'
+revision = 'a1f5183515ba'
 down_revision = None
 branch_labels = None
 depends_on = None
