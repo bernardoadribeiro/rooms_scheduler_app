@@ -6,7 +6,7 @@ FLASK_ADMIN_SWATCH = 'cerulean'
 TITLE = "Rooms Scheduler App"
 PASSWORD_SCHEMES = ['pbkdf2_sha512', 'md5_crypt']
 SECRET_KEY = 'YourSecretKey'
-SQLALCHEMY_DATABASE_URI = 'postgresql://user:pass@localhost:5432/db_name'
+SQLALCHEMY_DATABASE_URI = 'sqlite:///development.db'
 EXTENSIONS = [
     "rooms_scheduler_app.ext.appearance:init_app",
     "rooms_scheduler_app.ext.database:init_app",
