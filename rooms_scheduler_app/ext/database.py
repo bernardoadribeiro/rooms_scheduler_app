@@ -1,10 +1,12 @@
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy_serializer import SerializerMixin
+from flask_migrate import Migrate
 
 db = SQLAlchemy()
 
 
 def init_app(app):
+    migrate = Migrate(app, db, directory='./rooms_scheduler_app/migrations')
     db.init_app(app)
 
 class TypeProduct(db.Model, SerializerMixin):
