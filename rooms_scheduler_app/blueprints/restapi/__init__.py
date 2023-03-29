@@ -1,7 +1,9 @@
 from flask import Blueprint
 from flask_restful import Api
 
-from .resources import UsersResource, UserResource, RoomsResource, RoomResource
+from .resources import (UsersResource, UserResource, 
+                        RoomsResource, RoomResource, 
+                        SchedulesResource, ScheduleResource)
 
 
 bp = Blueprint("restapi", __name__, url_prefix="/api/v1")
@@ -13,6 +15,9 @@ api.add_resource(UserResource, "/users/<int:user_id>")
 
 api.add_resource(RoomsResource, "/rooms/")
 api.add_resource(RoomResource, "/rooms/<int:room_id>")
+
+api.add_resource(SchedulesResource, "/schedules/")
+api.add_resource(ScheduleResource, "/schedules/<int:schedule_id>")
 
 def init_app(app):
     app.register_blueprint(bp)

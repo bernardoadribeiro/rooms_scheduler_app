@@ -1,4 +1,6 @@
+from datetime import datetime
 from typing_extensions import override
+import pytz
 
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
@@ -6,6 +8,8 @@ from sqlalchemy_serializer import SerializerMixin
 
 db = SQLAlchemy()
 
+# Default timezone
+tz = pytz.timezone('America/Sao_Paulo')
 
 def init_app(app):
     migrate = Migrate(app, db, directory='./rooms_scheduler_app/migrations')
@@ -85,5 +89,19 @@ class Schedule(db.Model, SerializerMixin):
     user = db.relationship('User', lazy=True)
     room_id = db.Column(db.Integer(), db.ForeignKey('room.id'), nullable=False)
     room = db.relationship('Room', lazy=True)
-    created_at = db.Column(db.DateTime())
-    updated_at = db.Column(db.DateTime())
+    created_at = db.Column(db.DateTime(), default=datetime.now(tz))
+    updated_at = db.Column(db.DateTime(), default=datetime.now(tz))
+
+    @override
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'date': self.date,
+            'start_time': str(self.start_time),
+            'end_time': str(self.end_time),
+            'status': self.status,
+            'user': self.user.to_dict(),
+            'room': self.room.to_dict(),
+            'created_at': self.created_at,
+            'updated_at': self.updated_at
+        }
