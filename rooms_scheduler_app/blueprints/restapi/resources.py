@@ -2,7 +2,8 @@ from datetime import datetime
 
 from flask import jsonify, abort, request
 from flask_restful import Resource
-from rooms_scheduler_app.ext.database import User, Room, RoomType, Schedule
+from rooms_scheduler_app.ext.database import (User, UserRoomPermission,
+                                              Room, RoomType, Schedule)
 
 from ...ext.database import db, tz
 
@@ -151,11 +152,18 @@ class SchedulesResource(Resource):
         room = Room.query.get(room_id)
         if not room:
             abort(400, "Invalid Room ID.")
+
+        # Check if the user has permission to access the room
+        user_permissions = UserRoomPermission.query.filter_by(
+            user_id=user_id, room_type_id=room.room_type_id
+        ).first()
+        if not user_permissions:
+            abort(400, "User does not have permission to access this room.")
         
         new_schedule = Schedule(
-            date=date,
-            start_time=start_time,
-            end_time=end_time,
+            date=datetime.strptime(date, "%Y-%m-%d").date(),
+            start_time=datetime.strptime(start_time, "%H:%M:%S").time(),
+            end_time=datetime.strptime(end_time, "%H:%M:%S").time(),
             status=status,
             user_id=user_id,
             room_id=room_id,
@@ -172,12 +180,12 @@ class ScheduleResource(Resource):
     """ Schedule resource to update with PATCH or GET a specific schedule."""
 
     def get(self, schedule_id):
-        schedule = Room.query.get(schedule_id) or abort(404, "Schedule not found.")
+        schedule = Schedule.query.get(schedule_id) or abort(404, "Schedule not found.")
         
         return jsonify(schedule.to_dict())
 
     def patch(self, schedule_id):
-        schedule = Room.query.get(schedule_id) or abort(404, "Schedule not found.")
+        schedule = Schedule.query.get(schedule_id) or abort(404, "Schedule not found.")
 
         data = request.get_json()
         if not data:
@@ -193,13 +201,13 @@ class ScheduleResource(Resource):
         schedule.updated_at = datetime.now(tz)
 
         if date:
-            schedule.date = date
+            schedule.date = datetime.strptime(date, "%Y-%m-%d").date()
         
         if start_time:
-            schedule.start_time = start_time
+            schedule.start_time = datetime.strptime(start_time, "%H:%M:%S").time()
         
         if end_time:
-            schedule.end_time = end_time
+            schedule.end_time = datetime.strptime(end_time, "%H:%M:%S").time()
 
         if status:
             schedule.status = status
@@ -216,6 +224,13 @@ class ScheduleResource(Resource):
                 abort(400, "Invalid Room ID.")
             schedule.room_id = room_id
         
+        # Check if the user has permission to access the room
+        user_permissions = UserRoomPermission.query.filter_by(
+            user_id=user_id, room_type_id=room.room_type_id
+        ).first()
+        if not user_permissions:
+            abort(400, "User does not have permission to access this room.")
+        
         db.session.commit()
 
-        return jsonify(room.to_dict())
+        return jsonify(schedule.to_dict())
