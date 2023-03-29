@@ -1,0 +1,21 @@
+{% extends "index.html" %}
+{% block content %}
+<div class="container">
+<h1>{{ schedule.room.name }} | {{ schedule.room.room_type.description }} nº {{ schedule.room.number }}</h1>
+
+<div class="jumbotron">
+<h2>{{ "%s" | format(schedule.room.name)}}</h2>
+<p>
+    Date: {{schedule.date}} <br>
+    Start Time: {{schedule.start_time}} <br>
+    End Time: {{schedule.end_time}} <br>
+    Person: {{schedule.user.first_name}} {{schedule.user.last_name}} <br>
+    Status: {{schedule.status}} <br>
+    <br>
+    Scheduled at: {{schedule.created_at}} <br>
+    Updated at: {{schedule.updated_at}}
+
+</p>
+</div>
+</div>
+{% endblock %}
