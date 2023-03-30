@@ -22,7 +22,7 @@ class UserAdmin(sqla.ModelView):
 
 def init_app(app):
     admin.name = app.config.TITLE
-    admin.template_mode = "bootstrap3"
+    admin.template_mode = app.config.FLASK_ADMIN_TEMPLATE_MODE
     admin.init_app(app)
     admin.add_view(sqla.ModelView(Room, db.session))
     admin.add_view(sqla.ModelView(RoomType, db.session))

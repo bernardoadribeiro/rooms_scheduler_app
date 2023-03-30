@@ -6,6 +6,7 @@ from rooms_scheduler_app.ext.database import (User, UserRoomPermission,
                                               Room, RoomType, Schedule)
 
 from ...ext.database import db, tz
+from ...ext.auth import create_user
 
 
 # APIs Resources
@@ -22,6 +23,18 @@ class UsersResource(Resource):
                 for user in users
             ]}
         )
+
+    def post(self):
+        data = request.get_json()
+        if not data:
+            abort(400, "No data received in the body.")
+
+        username = data.get('username')
+        password = data.get('password')
+
+        new_user = create_user(username, password)
+
+        return jsonify(new_user.to_dict())
 
 class UserResource(Resource):
     """ User resource. Returns a single user."""

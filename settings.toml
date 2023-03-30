@@ -1,7 +1,7 @@
 [default]
 DEBUG = false
 FLASK_ADMIN_NAME = "Rooms Scheduler App | Admin"
-FLASK_ADMIN_TEMPLATE_MODE = "bootstrap3"
+FLASK_ADMIN_TEMPLATE_MODE = "bootstrap4"
 FLASK_ADMIN_SWATCH = 'cerulean'
 TITLE = "Rooms Scheduler App"
 PASSWORD_SCHEMES = ['pbkdf2_sha512', 'md5_crypt']
