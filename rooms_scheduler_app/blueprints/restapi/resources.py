@@ -145,6 +145,10 @@ class SchedulesResource(Resource):
         created_at = datetime.now(tz)
         updated_at = datetime.now(tz)
 
+        date=datetime.strptime(date, "%Y-%m-%d").date()
+        start_time=datetime.strptime(start_time, "%H:%M:%S").time()
+        end_time=datetime.strptime(end_time, "%H:%M:%S").time()
+
         user = User.query.get(user_id)
         if not user:
             abort(400, "Invalid User ID.")
@@ -153,6 +157,10 @@ class SchedulesResource(Resource):
         if not room:
             abort(400, "Invalid Room ID.")
 
+        # Checking if the selected period is available
+        if check_room_availability(start_time=start_time, end_time=end_time, date=date):
+            pass
+       
         # Check if the user has permission to access the room
         user_permissions = UserRoomPermission.query.filter_by(
             user_id=user_id, room_type_id=room.room_type_id
@@ -161,9 +169,9 @@ class SchedulesResource(Resource):
             abort(400, "User does not have permission to access this room.")
         
         new_schedule = Schedule(
-            date=datetime.strptime(date, "%Y-%m-%d").date(),
-            start_time=datetime.strptime(start_time, "%H:%M:%S").time(),
-            end_time=datetime.strptime(end_time, "%H:%M:%S").time(),
+            date=date,
+            start_time=start_time,
+            end_time=end_time,
             status=status,
             user_id=user_id,
             room_id=room_id,
@@ -223,7 +231,11 @@ class ScheduleResource(Resource):
             if not room:
                 abort(400, "Invalid Room ID.")
             schedule.room_id = room_id
-        
+
+        # Checking if the selected period is available
+        if check_room_availability(start_time=schedule.start_time, end_time=schedule.end_time, date=schedule.date):
+            pass
+
         # Check if the user has permission to access the room
         user_permissions = UserRoomPermission.query.filter_by(
             user_id=user_id, room_type_id=room.room_type_id
@@ -234,3 +246,34 @@ class ScheduleResource(Resource):
         db.session.commit()
 
         return jsonify(schedule.to_dict())
+
+
+def check_room_availability(end_time, start_time, date):
+    """ Check the availability of a room in the given period."""
+
+    schedules = Schedule.query.filter_by(date=date).all()
+
+    # if there are any schedules in the given date
+    if schedules:
+        for schedule in schedules:
+            # if the schedule is between a existing schedule
+            if start_time >= schedule.start_time and end_time <= schedule.end_time:
+                abort(400, "The START and END of the schedule must be BEFORE or AFTER a existing schedule. Not in the middle of one.")
+
+            # if the schedule ending is in the middle of a existing schedule
+            if end_time >= schedule.start_time and end_time <= schedule.end_time:
+                abort(400, "The END time of the schedule must be BEFORE the BEGIN of a existing schedule.")
+            
+            # if the schedule begining is in the middle of a existing schedule
+            if start_time >= schedule.start_time and start_time <= schedule.end_time:
+                abort(400, "The BEGIN time of the schedule must be AFTER the END of a existing schedule.")
+
+            # if the schedule is 'holding' a existing schedule
+            if start_time <= schedule.start_time and end_time >= schedule.end_time:
+                abort(400, "The START and END of the schedule must be BEFORE or AFTER a existing schedule. Not 'holding' one.")
+
+            # if the schedule is ending before it starts
+            if end_time <= start_time:
+                abort(400, "The END time must be greater than start time. The Schedule must end after it starts.")
+    
+    return True
