@@ -171,7 +171,7 @@ class SchedulesResource(Resource):
             abort(400, "Invalid Room ID.")
 
         # Checking if the selected period is available
-        if check_room_availability(start_time=start_time, end_time=end_time, date=date):
+        if check_room_availability(start_time=start_time, end_time=end_time, date=date, room_id=room_id):
             pass
        
         # Check if the user has permission to access the room
@@ -246,7 +246,7 @@ class ScheduleResource(Resource):
             schedule.room_id = room_id
 
         # Checking if the selected period is available
-        if check_room_availability(start_time=schedule.start_time, end_time=schedule.end_time, date=schedule.date):
+        if check_room_availability(start_time=schedule.start_time, end_time=schedule.end_time, date=schedule.date, room_id=room_id):
             pass
 
         # Check if the user has permission to access the room
@@ -261,10 +261,10 @@ class ScheduleResource(Resource):
         return jsonify(schedule.to_dict())
 
 
-def check_room_availability(end_time, start_time, date):
+def check_room_availability(end_time, start_time, date, room_id):
     """ Check the availability of a room in the given period."""
 
-    schedules = Schedule.query.filter_by(date=date).all()
+    schedules = Schedule.query.filter_by(date=date, room_id=room_id).all()
 
     # if there are any schedules in the given date
     if schedules:
