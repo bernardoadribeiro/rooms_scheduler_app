@@ -1,5 +1,11 @@
 [flake8]
 
-exclude = helper.py
+exclude = 
+    helper.py, 
+    migrations
 
 max-line-length = 100
+
+per-file-ignores =
+    # imported but unused
+    database.py: F401, E402
