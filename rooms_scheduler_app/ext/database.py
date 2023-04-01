@@ -10,7 +10,7 @@ tz = pytz.timezone('America/Sao_Paulo')
 
 
 def init_app(app):
-    migrate = Migrate(app, db, directory='./rooms_scheduler_app/migrations')
+    Migrate(app, db, directory='./rooms_scheduler_app/migrations')
     db.init_app(app)
 
 

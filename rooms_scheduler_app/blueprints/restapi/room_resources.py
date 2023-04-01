@@ -1,14 +1,13 @@
-from datetime import datetime
-
 from flask import jsonify, abort, request
 from flask_restful import Resource
 from rooms_scheduler_app.ext.database import Room, RoomType
 
 from ...ext.database import db
 
-# Rooms Resources
+
 class RoomsResource(Resource):
     """ Rooms Resource to GET all rooms or POST a new room."""
+
     def get(self):
         rooms = Room.query.all() or abort(404, "No rooms found.")
 
@@ -47,12 +46,13 @@ class RoomsResource(Resource):
 
         return jsonify(new_room.to_dict())
 
+
 class RoomResource(Resource):
     """ Room resource to update with PATCH or GET a specific room."""
 
     def get(self, room_id):
         room = Room.query.get(room_id) or abort(404, "Room not found.")
-        
+
         return jsonify(room.to_dict())
 
     def patch(self, room_id):
@@ -70,7 +70,7 @@ class RoomResource(Resource):
 
         if name:
             room.name = name
-        
+
         if number:
             room.number = number
 
@@ -79,13 +79,13 @@ class RoomResource(Resource):
             if not room_type:
                 abort(400, "Invalid Room Type ID.")
             room.room_type = room_type
-        
+
         if key_status:
             room.key_status = key_status
-        
+
         if room_status:
             room.room_status = room_status
-        
+
         db.session.commit()
 
         return jsonify(room.to_dict())

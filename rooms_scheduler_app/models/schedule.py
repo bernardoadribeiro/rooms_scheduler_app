@@ -13,7 +13,7 @@ class Schedule(db.Model, SerializerMixin):
     date = db.Column(db.Date, nullable=False)
     start_time = db.Column(db.Time, nullable=False)
     end_time = db.Column(db.Time, nullable=False)
-    status = db.Column(db.String()) # Confirmed, Canceled, In_Progress, Concluded
+    status = db.Column(db.String())  # Confirmed, Canceled, In_Progress, Concluded
     user_id = db.Column(db.Integer(), db.ForeignKey('user.id'), nullable=False)
     user = db.relationship('User', lazy=True)
     room_id = db.Column(db.Integer(), db.ForeignKey('room.id'), nullable=False)

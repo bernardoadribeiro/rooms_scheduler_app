@@ -1,0 +1,5 @@
+[flake8]
+
+exclude = helper.py
+
+max-line-length = 100

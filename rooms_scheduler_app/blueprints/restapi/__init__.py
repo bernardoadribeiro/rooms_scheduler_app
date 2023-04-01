@@ -2,7 +2,8 @@ from flask import Blueprint
 from flask_restful import Api
 
 from .room_resources import RoomsResource, RoomResource
-from .schedule_resources import SchedulesResource, ScheduleResource, AccessRequestHandlerResource
+from .schedule_resources import (SchedulesResource, ScheduleResource,
+                                 AccessRequestHandlerResource)
 from .user_resources import UsersResource, UserResource
 
 
@@ -19,7 +20,9 @@ api.add_resource(RoomResource, "/rooms/<int:room_id>")
 api.add_resource(SchedulesResource, "/schedules/")
 api.add_resource(ScheduleResource, "/schedules/<int:schedule_id>")
 
-api.add_resource(AccessRequestHandlerResource, "/handler/access_request/<int:user_id>/<int:room_id>")
+api.add_resource(AccessRequestHandlerResource,
+                 "/handler/access_request/<int:user_id>/<int:room_id>")
+
 
 def init_app(app):
     app.register_blueprint(bp)
