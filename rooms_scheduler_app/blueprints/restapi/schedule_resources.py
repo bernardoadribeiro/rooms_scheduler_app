@@ -3,133 +3,12 @@ from datetime import datetime
 from flask import jsonify, abort, request
 from flask_restful import Resource
 from rooms_scheduler_app.ext.database import (User, UserRoomPermission,
-                                              Room, RoomType, Schedule)
+                                              Room, Schedule)
 
 from ...ext.database import db, tz
-from ...ext.auth import create_user
+from .helper import check_room_availability, has_room_permission
 
 
-# APIs Resources
-
-# Users Resources
-class UsersResource(Resource):
-    """ Users Resource"""
-    def get(self):
-        users = User.query.all() or abort(204)
-
-        return jsonify(
-            {'users':[ 
-                user.to_dict()
-                for user in users
-            ]}
-        )
-
-    def post(self):
-        data = request.get_json()
-        if not data:
-            abort(400, "No data received in the body.")
-
-        username = data.get('username')
-        password = data.get('password')
-
-        new_user = create_user(username, password)
-
-        return jsonify(new_user.to_dict())
-
-class UserResource(Resource):
-    """ User resource. Returns a single user."""
-    def get(self, user_id):
-        user = User.query.filter_by(id=user_id).first() or abort(404)
-        
-        return jsonify(user.to_dict())
-    
-
-# Rooms Resources
-class RoomsResource(Resource):
-    """ Rooms Resource to GET all rooms or POST a new room."""
-    def get(self):
-        rooms = Room.query.all() or abort(404, "No rooms found.")
-
-        return jsonify({
-            'rooms': [
-                room.to_dict()
-                for room in rooms
-            ]}
-        )
-
-    def post(self):
-        data = request.get_json()
-        if not data:
-            abort(400, "No data received in the body.")
-
-        name = data.get('name')
-        number = data.get('number')
-        room_type_id = data.get('room_type_id')
-        key_status = data.get('key_status')
-        room_status = data.get('room_status')
-
-        room_type = RoomType.query.get(room_type_id)
-        if not room_type:
-            abort(400, "Invalid Room Type ID.")
-
-        new_room = Room(
-            name=name,
-            number=number,
-            room_type_id=room_type_id,
-            key_status=key_status,
-            room_status=room_status
-        )
-
-        db.session.add(new_room)
-        db.session.commit()
-
-        return jsonify(new_room.to_dict())
-
-class RoomResource(Resource):
-    """ Room resource to update with PATCH or GET a specific room."""
-
-    def get(self, room_id):
-        room = Room.query.get(room_id) or abort(404, "Room not found.")
-        
-        return jsonify(room.to_dict())
-
-    def patch(self, room_id):
-        room = Room.query.get(room_id) or abort(404, "Room not found.")
-
-        data = request.get_json()
-        if not data:
-            abort(400, "No data received in the body.")
-
-        name = data.get('name')
-        number = data.get('number')
-        room_type_id = data.get('room_type_id')
-        key_status = data.get('key_status')
-        room_status = data.get('room_status')
-
-        if name:
-            room.name = name
-        
-        if number:
-            room.number = number
-
-        if room_type_id:
-            room_type = RoomType.query.get(room_type_id)
-            if not room_type:
-                abort(400, "Invalid Room Type ID.")
-            room.room_type = room_type
-        
-        if key_status:
-            room.key_status = key_status
-        
-        if room_status:
-            room.room_status = room_status
-        
-        db.session.commit()
-
-        return jsonify(room.to_dict())
-
-
-# Schedule Resources
 class SchedulesResource(Resource):
     """ Schedules Resource to GET all schedules or POST a new schedule."""
     def get(self):
@@ -261,35 +140,6 @@ class ScheduleResource(Resource):
         return jsonify(schedule.to_dict())
 
 
-def check_room_availability(end_time, start_time, date, room_id):
-    """ Check the availability of a room in the given period."""
-
-    schedules = Schedule.query.filter_by(date=date, room_id=room_id).all()
-
-    # if there are any schedules in the given date
-    if schedules:
-        for schedule in schedules:
-            # if the schedule is between a existing schedule
-            if start_time >= schedule.start_time and end_time <= schedule.end_time:
-                abort(400, "The START and END of the schedule must be BEFORE or AFTER a existing schedule. Not in the middle of one.")
-
-            # if the schedule ending is in the middle of a existing schedule
-            if end_time >= schedule.start_time and end_time <= schedule.end_time:
-                abort(400, "The END time of the schedule must be BEFORE the BEGIN of a existing schedule.")
-            
-            # if the schedule begining is in the middle of a existing schedule
-            if start_time >= schedule.start_time and start_time <= schedule.end_time:
-                abort(400, "The BEGIN time of the schedule must be AFTER the END of a existing schedule.")
-
-            # if the schedule is 'holding' a existing schedule
-            if start_time <= schedule.start_time and end_time >= schedule.end_time:
-                abort(400, "The START and END of the schedule must be BEFORE or AFTER a existing schedule. Not 'holding' one.")
-
-            # if the schedule is ending before it starts
-            if end_time <= start_time:
-                abort(400, "The END time must be greater than start time. The Schedule must end after it starts.")
-    
-    return True
 
 
 class AccessRequestHandlerResource(Resource):
@@ -327,23 +177,3 @@ class AccessRequestHandlerResource(Resource):
             'end_time': ''
         }, 400
         
-
-def has_room_permission(user_id, room_id):
-    """Check if the user has permission to access this type of room"""
-
-    room = Room.query.filter_by(id=room_id).first()
-
-    user_permission = UserRoomPermission.query.filter_by(
-        user_id=user_id, room_type_id=room.room_type_id
-    ).first()
-    
-    if not user_permission:
-        # If the user is not allowed to access this room or does not have a schedule
-        abort(400, {
-            'access': False, 
-            'message': 'The user do not have access to this room.',
-            'start_time': '',
-            'end_time': ''
-        })
-    else:
-        return True

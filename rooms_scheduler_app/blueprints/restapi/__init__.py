@@ -1,10 +1,9 @@
 from flask import Blueprint
 from flask_restful import Api
 
-from .resources import (UsersResource, UserResource, 
-                        RoomsResource, RoomResource, 
-                        SchedulesResource, ScheduleResource,
-                        AccessRequestHandlerResource)
+from .room_resources import RoomsResource, RoomResource
+from .schedule_resources import SchedulesResource, ScheduleResource, AccessRequestHandlerResource
+from .user_resources import UsersResource, UserResource
 
 
 bp = Blueprint("restapi", __name__, url_prefix="/api/v1")
