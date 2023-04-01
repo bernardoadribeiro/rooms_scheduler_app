@@ -130,7 +130,8 @@ class ScheduleResource(Resource):
 
         # Check if the user has permission to access the room
         user_permissions = UserRoomPermission.query.filter_by(
-            user_id=user_id, room_type_id=room.room_type_id
+            user_id=user_id, 
+            room_type_id=Room.query.get(room_id).room_type_id
         ).first()
         if not user_permissions:
             abort(400, "User does not have permission to access this room.")
@@ -158,9 +159,14 @@ class AccessRequestHandlerResource(Resource):
         now = datetime.now(tz).time()
         today = datetime.now(tz).date()
 
-        schedules = Schedule.query.filter_by(user_id=user_id, room_id=room_id, date=today).all()
+        schedules = Schedule.query.filter_by(
+            user_id=user_id, 
+            room_id=room_id, 
+            date=today
+        ).all()
 
         for schedule in schedules:
+            # If the user has some schedule today
             if now > schedule.start_time and now < schedule.end_time and schedule.status == 'Confirmed':
                 return jsonify({
                     'access': True,
