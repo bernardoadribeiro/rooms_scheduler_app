@@ -1,15 +1,10 @@
 # Rooms Scheduler App with Flask
 
-
 ## About
-This project implements a app to manage the scheduling of rooms to have more control over scheduling and room's keys.
+This project implements a app to manage the scheduling of rooms to have more control over scheduling and room's keys, and also, manage access of rooms.
 
 We developed this app as requested for the Software Arch discipline of the BSI graduation course.
 This course is offered by IFNMG Campus Januária.
-
-### Project Specification
-- Apply the concepts of Clean Arch
-- ...
 
 **Obs:** This is a simple app, some features, errors and security threatments may be not available.
 
@@ -25,7 +20,7 @@ The app is containerized with Docker, and the features are developed using React
 - Flask Framework 
 
 **Database**
-- Postgresql
+- SQLite
 
 
 ## How to Set-up the project
@@ -58,8 +53,7 @@ The app is containerized with Docker, and the features are developed using React
 **Useful commands**
 - `docker-compose up`: Run all containers
 - `docker-compose down`: Stop all containers
-- `docker-compose build [backend | frontend | database]`: Re-build a specific container
-- Install React dependencies: `cd frontend && npm install`
+- `docker-compose up --build`: Build all containers
 - `$ flask create-db`
 - `$ flask populate-db`
 - `$ flask add-user -u <digite um usuário> -p <digite uma senha>`
