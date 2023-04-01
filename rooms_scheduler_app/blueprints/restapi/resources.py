@@ -290,3 +290,60 @@ def check_room_availability(end_time, start_time, date, room_id):
                 abort(400, "The END time must be greater than start time. The Schedule must end after it starts.")
     
     return True
+
+
+class AccessRequestHandlerResource(Resource):
+    """ Handler for access of a room.
+        
+        Verifies if the user is allowed to access the room and if he has scheduled the room at the moment of request.
+
+        Timezone: UTC-3
+    """
+
+    def get(self, user_id, room_id):
+
+        if has_room_permission(user_id, room_id):
+            pass
+
+        now = datetime.now(tz).time()
+        today = datetime.now(tz).date()
+
+        schedules = Schedule.query.filter_by(user_id=user_id, room_id=room_id, date=today).all()
+
+        for schedule in schedules:
+            if now > schedule.start_time and now < schedule.end_time and schedule.status == 'Confirmed':
+                return jsonify({
+                    'access': True,
+                    'message': 'You have access to this room.',
+                    'start_time': str(schedule.start_time),
+                    'end_time': str(schedule.end_time)
+                })
+        
+        # If the user is not allowed to access this room or does not have a schedule
+        return {
+            'access': False, 
+            'message': 'You do not have access to this room.',
+            'start_time': '',
+            'end_time': ''
+        }, 400
+        
+
+def has_room_permission(user_id, room_id):
+    """Check if the user has permission to access this type of room"""
+
+    room = Room.query.filter_by(id=room_id).first()
+
+    user_permission = UserRoomPermission.query.filter_by(
+        user_id=user_id, room_type_id=room.room_type_id
+    ).first()
+    
+    if not user_permission:
+        # If the user is not allowed to access this room or does not have a schedule
+        abort(400, {
+            'access': False, 
+            'message': 'The user do not have access to this room.',
+            'start_time': '',
+            'end_time': ''
+        })
+    else:
+        return True
